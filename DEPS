@@ -10,6 +10,7 @@ gclient_gn_args = [
   'checkout_oculus_sdk',
   'checkout_openxr',
   'mac_xcode_version',
+  'generate_location_tags',
 ]
 
 vars = {
@@ -22,11 +23,11 @@ vars = {
   'boringssl_revision': '430a7423039682e4bbc7b522e3b57b2c8dca5e3b',
 
   # buildtools
-  'gn_version': 'git_revision:7d7e8deea36d126397bda2cf924682504271f0e1',
-  'clang_format_revision': '96636aa0e9f047f17447f2d45a094d0b59ed7917',
-  'libcxx_revision':       'd9040c75cfea5928c804ab7c235fed06a63f743a',
-  'libcxxabi_revision':    '196ba1aaa8ac285d94f4ea8d9836390a45360533',
-  'libunwind_revision':    'd999d54f4bca789543a2eb6c995af2d9b5a1f3ed',
+  'gn_version': 'git_revision:90294ccdcf9334ed25a76ac9b67689468e506342',
+  'clang_format_revision': '99876cacf78329e5f99c244dbe42ccd1654517a0',
+  'libcxx_revision':       '79a2e924d96e2fc1e4b937c42efd08898fa472d7',
+  'libcxxabi_revision':    '4c6e0991b109638204f08c93600b008c21f01da5',
+  'libunwind_revision':    '99015718c37b30d44c3bcbcc92a03fb85fb85a99',
 
   'react_native_git': 'https://github.com/facebook/react-native.git',
   'chromium_git': 'https://chromium.googlesource.com',
@@ -43,6 +44,8 @@ vars = {
   'checkout_oculus_sdk' : False,
   'checkout_openxr' : False,
   'mac_xcode_version': 'default',
+  'generate_location_tags': False,
+  'llvm_force_head_revision': False,
 }
 
 deps = {
@@ -81,7 +84,7 @@ deps = {
   'src/third_party/boringssl/src'         : 'https://boringssl.googlesource.com/boringssl.git' + '@' + Var('boringssl_revision'),
 
   # buildtools
-  'src/third_party/depot_tools': Var('chromium_git') + '/chromium/tools/depot_tools.git' + '@' + '0bfbd890c3e2f3aa734119507d14162248409664',
+  'src/third_party/depot_tools': Var('chromium_git') + '/chromium/tools/depot_tools.git' + '@' + 'a91f399a8a1f3199cb1f91b19bd2c3b88bb42d6c',
   'src/buildtools/clang_format/script':
     Var('chromium_git') + '/chromium/llvm-project/cfe/tools/clang-format.git@' +
     Var('clang_format_revision'),
@@ -135,29 +138,29 @@ hooks = [
     'name': 'win_toolchain',
     'pattern': '.',
     'condition': 'checkout_win',
-    'action': ['python', 'src/build/vs_toolchain.py', 'update', '--force'],
+    'action': ['python3', 'src/build/vs_toolchain.py', 'update', '--force'],
   },
   {
     # Update the Mac toolchain if necessary.
     'name': 'mac_toolchain',
     'pattern': '.',
-    'condition': 'checkout_mac',
-    'action': ['python', 'src/build/mac_toolchain.py',
-               '--xcode-version', Var('mac_xcode_version')],
+    'condition': 'checkout_mac or checkout_ios',
+    'action': ['python3', 'src/build/mac_toolchain.py'],
   },
   {
     # Update the prebuilt clang toolchain.
     # Note: On Win, this should run after win_toolchain, as it may use it.
     'name': 'clang',
     'pattern': '.',
-    'action': ['python', 'src/tools/clang/scripts/update.py'],
+    'condition': 'not llvm_force_head_revision',
+    'action': ['python3', 'src/tools/clang/scripts/update.py'],
   },
   # Pull clang-format binaries using checked-in hashes.
   {
     'name': 'clang_format_win',
     'pattern': '.',
     'condition': 'host_os == "win"',
-    'action': [ 'python',
+    'action': [ 'python3',
                 'src/third_party/depot_tools/download_from_google_storage.py',
                 '--no_resume',
                 '--no_auth',
@@ -169,7 +172,7 @@ hooks = [
     'name': 'clang_format_mac',
     'pattern': '.',
     'condition': 'host_os == "mac"',
-    'action': [ 'python',
+    'action': [ 'python3',
                 'src/third_party/depot_tools/download_from_google_storage.py',
                 '--no_resume',
                 '--no_auth',
@@ -181,7 +184,7 @@ hooks = [
     'name': 'clang_format_linux',
     'pattern': '.',
     'condition': 'host_os == "linux"',
-    'action': [ 'python',
+    'action': [ 'python3',
                 'src/third_party/depot_tools/download_from_google_storage.py',
                 '--no_resume',
                 '--no_auth',
