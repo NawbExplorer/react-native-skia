@@ -59,7 +59,7 @@ Compositor::~Compositor() {
 }
 
 void Compositor::createWindowContext() {
-    windowContext_ = WCF::createContextForWindow(reinterpret_cast<GLNativeWindowType>(nativeWindowHandle_),
+    windowContext_ = WCF::createContextForWindow(static_cast<GLNativeWindowType>(nativeWindowHandle_),
                         &PlatformDisplay::sharedDisplayForCompositing(), DisplayParams());
 
     if (!windowContext_ || !windowContext_->makeContextCurrent())
