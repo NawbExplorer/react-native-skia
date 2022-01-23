@@ -129,6 +129,7 @@ config("internal_configs") {
     "-Wno-unreachable-code",
     "-Wno-unused-local-typedef",
     "-Wno-unreachable-code-return",
+    "-Wno-unused-but-set-variable",
   ]
 
   if (is_clang) {
